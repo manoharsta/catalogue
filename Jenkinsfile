@@ -9,6 +9,7 @@ pipeline {
         }
         stage('Unit test') {
             steps {
+                //just printing
                 echo "unit testing is done here"
             }
         }
