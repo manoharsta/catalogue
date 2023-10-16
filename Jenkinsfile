@@ -47,7 +47,13 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                echo "Deployment"
+                script {
+                    echo "Deployment"
+                    build job:"catalogue-deploy",wait:true
+
+                }
+                
+
             }
         }
     }
