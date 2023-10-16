@@ -3,23 +3,59 @@ pipeline {
     stages {
         stage('Install depdencies') {
             steps {
-                // INstalling dependencies
                 sh 'npm install'
             }
         }
         stage('Unit test') {
             steps {
-                //just printing
                 echo "unit testing is done here"
             }
         }
-        // sonar-scanner command expect sonar-project.properties should be available
-        stage('Sonar Scan') {
+        //sonar-scanner command expect sonar-project.properties should be available
+        // stage('Sonar Scan') {
+        //     steps {
+        //         sh 'ls -ltr'
+        //         sh 'sonar-scanner'
+        //     }
+        // }
+        stage('Build') {
             steps {
                 sh 'ls -ltr'
-                sh 'sonar-scanner'
+                sh 'zip -r catalogue.zip ./* --exclude=.git --exclude=.zip'
+            }
+        }
+        stage('Publish Artifact') {
+            steps {
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '54.224.13.226:8081/',
+                    groupId: 'com.roboshop',
+                    version: '1.0.1',
+                    repository: 'catalogue',
+                    credentialsId: 'nexus-auth',
+                    artifacts: [
+                        [artifactId: 'catalogue',
+                        classifier: '',
+                        file: 'catalogue.zip',
+                        type: 'zip']
+                    ]
+                )
+            }
+        }
+
+        
+        stage('Deploy') {
+            steps {
+                echo "Deployment"
             }
         }
     }
-}
 
+    post{
+        always{
+            echo 'cleaning up workspace'
+            deleteDir()
+        }
+    }
+}
